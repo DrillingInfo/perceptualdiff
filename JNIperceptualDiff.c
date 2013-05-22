@@ -18,8 +18,8 @@ JNIEXPORT jboolean JNICALL Java_com_drillinginfo_global_test_utils_ImagesCompare
 	char *p2 = malloc(strlen(cImage2path) + 1);
 	strcpy(p1, cImage1path);
 	strcpy(p2, cImage2path);
-	params->PathToImageA = "/home/andrew/temp/Image2.jpg";
-	params->PathToImageB = "/home/andrew/temp/Image2bad.jpg";
+	params->PathToImageA = p1;
+	params->PathToImageB = p2;
 
 	bool isDifferent = PDiffCompare(params, result);
 
