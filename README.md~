@@ -1,0 +1,39 @@
+------------------
+**PerceptualDiff** is a library that compares two images using a perceptually based image metric.<br>
+Originally comes from 
+<a href="https://github.com/myint/perceptualdiff">https://github.com/myint/perceptualdiff</a>
+
+------------------
+# CPP #
+Because originally **PerceptualDiff** distributes like a standalone application we've made a couple changes in order to use it like a library.
+I added a **imageDiff.cpp** as a wrapper and it's a entry point for JNI calls as well.<br>
+Also I added a **failedPixels** variable to **CompareArgs.h** for storing the number of difference pixels after comparing.<br>
+
+**imageDiff.cpp** has a method <br>
+`JNIEXPORT jint JNICALL Java_com_drillinginfo_global_test_utils_ImageDiff_getDifferencePixels (JNIEnv *, jobject, jstring, jstring)`<br>
+that can be called from Java class. It takes 2 parameters - paths to files for comparison and returns integer value - the number or difference pixels.<br>
+
+*TODO:
+make a change for operating with arrays of bytes instead of files.*
+
+For build **libImageDiff.so** use a command:<br>
+
+    g++ -shared -fPIC -fpermissive -I$JAVA_HOME/include -I$JAVA_HOME/include/linux imageDiff.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp RGBAImage.cpp libfreeimage.so.3 -o libImageDiff.so -Wl,-soname=ImageDiff.so
+    
+
+
+For use **PerceptualDiff** library you need to put two libraries <br>
+**libImageDiff.so** and **libfreeimage.so.3** to your native libraries folder and make this folder known for JVM using a command:<br>
+
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:<folder_name>
+
+**libfreeimage.so.3** is a common library that contains image routines, I put it here for convenient build.
+
+# Java	 #
+Java class should has a name <br>
+**com.drillinginfo.global.test.utils.ImageDiff**<br>
+and has a method
+
+    native int getDifferencePixels(String image1Path, String image2Path)
+
+The package name and class name could be other but in that case you need to rebuild a header file `com_drillinginfo_global_content_utils_ImageDiff.h` and to change the entry point method in **imageDiff.cpp** according to JNI specification.

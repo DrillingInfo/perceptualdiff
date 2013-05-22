@@ -1,0 +1,6 @@
+#ifndef __ArgsManager_h_included_
+#define __ArgsManager_h_included_
+
+	bool entryPointTest(const char *cImage1path, const char *cImage2path);
+
+#endif
