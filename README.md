@@ -19,7 +19,7 @@ For build a library use follow commands:<br>
     g++ -c -fPIC PerceptualDiffWrapper.cpp ArgsManager.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp RGBAImage.cpp
     gcc -shared -fPIC PerceptualDiffWrapper.o ArgsManager.o CompareArgs.o LPyramid.o Metric.o RGBAImage.o -L. libfreeimage.so.3 -o libPdiff.so
 
-They make a **libPdiff.so** that can be used letter, like this for example:
+They make a **libPdiff.so** that can be used later, for example:
 
     gcc -fPIC -o test_main test_main.c libPdiff.so libfreeimage.so.3
 
