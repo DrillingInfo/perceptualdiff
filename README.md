@@ -17,20 +17,28 @@ For build a library use follow commands:<br>
 
 
     g++ -c -fPIC PerceptualDiffWrapper.cpp ArgsManager.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp RGBAImage.cpp
-    gcc -c -fPIC -I$JAVA_HOME/include -I$JAVA_HOME/include/linux JNIperceptualDiff.c
-    gcc -shared -fPIC PerceptualDiffWrapper.o ArgsManager.o CompareArgs.o LPyramid.o Metric.o RGBAImage.o JNIperceptualDiff.o -L. libfreeimage.so.3 -o libPdiff.so
+    gcc -shared -fPIC PerceptualDiffWrapper.o ArgsManager.o CompareArgs.o LPyramid.o Metric.o RGBAImage.o -L. libfreeimage.so.3 -o libPdiff.so
 
 They make a **libPdiff.so** that can be used letter, like this for example:
 
-    gcc -fPIC -o main test_main.c libJNIperceptualDiff.so libPercDiffWrapper.so libfreeimage.so.3
+    gcc -fPIC -o test_main test_main.c libPdiff.so libfreeimage.so.3
 
 This command makes an executable `test_main` that tests the entry point to PerceptualDiffWrapper.
-Don't forget to run<br> 
+Before run ./test_main don't forget to run<br> 
 
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.
 
 **libfreeimage.so.3** is a common library that contains image routines, I put it here for convenient build.
 
+
+# Library for call from JNI#
+For build a library for JNI calls use follow commands:
+
+    g++ -c -fPIC PerceptualDiffWrapper.cpp ArgsManager.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp RGBAImage.cpp
+    gcc -c -fPIC -I$JAVA_HOME/include -I$JAVA_HOME/include/linux JNIperceptualDiff.c
+	gcc -shared -fPIC JNIperceptualDiff.o PerceptualDiffWrapper.o ArgsManager.o CompareArgs.o LPyramid.o Metric.o RGBAImage.o -L. libfreeimage.so.3 -o libPdiff.so
+
+Now we can use  **libPdiff.so** in JNI.
 # Java	 #
 Java class should has a name <br>
 **com.drillinginfo.global.test.utils.ImageDiff**<br>
