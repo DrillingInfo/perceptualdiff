@@ -3,10 +3,15 @@
 #ifndef PerceptualDiffWrapper_H
 #define PerceptualDiffWrapper_H
 
+enum conclusion {
+  IMAGES_EQUAL = 0,
+  IMAGES_DIFFERENT = 1,
+	COMPARISON_ERROR = 2
+} CONCLUSION;
 
 #ifdef __cplusplus
 extern "C" {
-	bool PDiffCompare(PDiffCompareParameters* parameters, PDiffCompareResult* result);
+	int PDiffCompare(PDiffCompareParameters* parameters, PDiffCompareResult* result);
 #endif
 
 #ifdef __cplusplus
@@ -15,43 +20,3 @@ extern "C" {
 
 #endif /*PerceptualDiffWrapper_H*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-#include "ArgsManager.h"
-
-#ifdef __cplusplus
-	extern "C" { bool PDiffCompare(PDiffCompareParameters* parameters, PDiffCompareResult* result); }
-#endif
-
-*/

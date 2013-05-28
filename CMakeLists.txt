@@ -5,9 +5,13 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 set(DIFF_SRC PerceptualDiff.cpp LPyramid.cpp RGBAImage.cpp
 CompareArgs.cpp Metric.cpp)
 
+set(DIFF_SRC_LIB PerceptualDiffWrapper.cpp RGBAImageExt.cpp RGBAImage.cpp ArgsManager.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp)
+
 add_executable (perceptualdiff ${DIFF_SRC})
+add_library (Pdiff STATIC ${DIFF_SRC_LIB})
 
 install(TARGETS perceptualdiff DESTINATION bin)
+#install(TARGETS Pdiff DESTINATION bin)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -15,6 +19,7 @@ SET(FREEIMAGE_FIND_REQUIRED, TRUE)
 FIND_PACKAGE(FreeImage)
 include_directories(${FREEIMAGE_INCLUDE_DIRS})
 target_link_libraries(perceptualdiff ${FREEIMAGE_LIBRARIES})
+target_link_libraries(Pdiff ${FREEIMAGE_LIBRARIES})
 
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -26,7 +31,7 @@ endif()
 
 # Compiler options.
 if(CMAKE_COMPILER_IS_GNUCC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -Wextra -ansi -pedantic -Wcast-qual -Wpointer-arith -Winit-self -Wswitch-default -Wmissing-include-dirs -Wold-style-cast -Wnon-virtual-dtor -Wno-unknown-pragmas")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -O3 -Wall -Wextra -ansi -pedantic -Wcast-qual -Wpointer-arith -Winit-self -Wswitch-default -Wmissing-include-dirs -Wold-style-cast -Wnon-virtual-dtor -Wno-unknown-pragmas")
 endif()
 
 # Packing stuff.

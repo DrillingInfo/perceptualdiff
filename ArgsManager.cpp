@@ -3,8 +3,9 @@
 #include <cstdio>
 #include <sstream>
 #include "ArgsManager.h"
-#include "RGBAImage.h"
+#include "RGBAImageExt.h"
 #include "Metric.h"
+#include "FreeImage.h"
 
 ArgsManager::ArgsManager() {	
 	ImgA = NULL;
@@ -25,12 +26,15 @@ ArgsManager::~ArgsManager() {
 }
 
 bool ArgsManager::parseArgs(PDiffCompareParameters* parameters) {
-	if ( (!parameters->PathToImageA) && 
+	if ( (!parameters->PathToImageA) && //check for empty filenames 
  			 (!parameters->PathToImageB)) {
-		std::stringstream ss;
-		ss << "File names for imageA and imageB should be specified\n";
-		ErrorStr = ss.str();
-		return false;
+
+			if ((!parameters->ImageA) && (!parameters->ImageB) ) { //check then for empty image bodies
+				std::stringstream ss;
+				ss << "Nor file names neither images were not provided for comparison.\n";
+				ErrorStr = ss.str();
+				return false;
+			}
 	}
 	FieldOfView = parameters->FieldOfView ? parameters->FieldOfView : FieldOfView;
 	Verbose = parameters->Verbose ? parameters->Verbose : Verbose;
@@ -43,21 +47,44 @@ bool ArgsManager::parseArgs(PDiffCompareParameters* parameters) {
 	bool scale = parameters->Scale ? parameters->Scale : false;
   const char* output_file_name = parameters->PathToOutputImage ? parameters->PathToOutputImage : NULL; 
 
-	ImgA = RGBAImage::ReadFromFile(parameters->PathToImageA);
-	if (!ImgA) {
-		ErrorStr = "FAIL: Cannot open ";
-		ErrorStr += parameters->PathToImageA;
-		ErrorStr += "\n";
-		return false;
-	} 
+	if ( (parameters->PathToImageA != NULL) &&
+ 			 (parameters->PathToImageB != NULL)) {
 
-	ImgB = RGBAImage::ReadFromFile(parameters->PathToImageB);
-	if (!ImgA) {
-		ErrorStr = "FAIL: Cannot open ";
-		ErrorStr += parameters->PathToImageB;
-		ErrorStr += "\n";
-		return false;
-	} 
+		ImgA = RGBAImage::ReadFromFile(parameters->PathToImageA);
+		if (!ImgA) {
+			ErrorStr = "FAIL: Cannot open ";
+			ErrorStr += parameters->PathToImageA;
+			ErrorStr += "\n";
+			return false;
+		} 
+
+		ImgB = RGBAImage::ReadFromFile(parameters->PathToImageB);
+		if (!ImgA) {
+			ErrorStr = "FAIL: Cannot open ";
+			ErrorStr += parameters->PathToImageB;
+			ErrorStr += "\n";
+			return false;
+		} 
+	}
+	else {
+		if ( (parameters->ImageA != NULL) && (parameters->ImageB!= NULL) ) { 
+			ImgA = RGBAImageExt::ReadFromArray(parameters->ImageA, parameters->ImageAsize);
+			if (!ImgA) {
+				ErrorStr = "FAIL: Cannot open ";
+				ErrorStr += parameters->PathToImageB;
+				ErrorStr += "\n";
+				return false;
+			} 
+			ImgB = RGBAImageExt::ReadFromArray(parameters->ImageB, parameters->ImageBsize);
+			if (!ImgB) {
+				ErrorStr = "FAIL: Cannot open ";
+				ErrorStr += parameters->PathToImageB;
+				ErrorStr += "\n";
+				return false;
+			} 
+		}
+	}
+
 	for (int i = 0; i < DownSample; i++) {
 		if (Verbose) printf("Downsampling by %d\n", 1 << (i+1));
 		RGBAImage *tmp = ImgA->DownSample();
@@ -100,5 +127,6 @@ bool ArgsManager::parseArgs(PDiffCompareParameters* parameters) {
 	if (output_file_name) {
 		ImgDiff = new RGBAImage(ImgA->Get_Width(), ImgA->Get_Height(), output_file_name);
 	}
+
 	return true;
 }

@@ -6,24 +6,29 @@
 #include "Metric.h"
 #include "ArgsManager.h"
 
+void copyErrorBuffer(ArgsManager &args, PDiffCompareResult* result) {
+	strncpy(result->ErrorBuffer, args.ErrorStr.c_str(), result->ErrorBufferSize);
+	if (result->ErrorBufferSize) {
+		  result->ErrorBuffer[result->ErrorBufferSize - 1] = '\0';
+	}
+}
 
-extern "C" bool PDiffCompare(PDiffCompareParameters* parameters, PDiffCompareResult* result) {
+extern "C" int PDiffCompare(PDiffCompareParameters* parameters, PDiffCompareResult* result) {
 	ArgsManager args;
 	if (!args.parseArgs(parameters)) {
-	 //  print error message about arguments
-		printf("not enoght arguments\n");	
+		result->conclusion = COMPARISON_ERROR;		
+		copyErrorBuffer(args, result);
+		return result->conclusion;
 	}
+
 	const bool passed = Yee_Compare(args);
-	result->ErrorBuffer = (char*)args.ErrorStr.c_str();
-	result->ErrorBufferSize = strlen(args.ErrorStr.c_str()) + 1;
+	copyErrorBuffer(args, result);
+
 	if (passed) {
-		//we need to extract the number of 'failred' pexels from
-		//the error message - args.ErrorStr
-		std::string searchPhrase = " pixels are different";
-		int startPos = args.ErrorStr.find_first_of('\n') + 1;
-		int endPos = args.ErrorStr.find(searchPhrase);
-		std::string diffPixelsStr = args.ErrorStr.substr(startPos, endPos - startPos);	
-		result->PixelsDifferent = atoi(diffPixelsStr.c_str());
+		result->conclusion = IMAGES_EQUAL;		
 	}
-	return passed;
+	else {
+		result->conclusion = IMAGES_DIFFERENT;		
+	}
+	return result->conclusion;
 }

@@ -1,21 +1,29 @@
 #include <stdbool.h> 
+#include <inttypes.h>
 
 #ifndef __ArgsManager_h_included_
 #define __ArgsManager_h_included_
 
 #ifdef __cplusplus
 	#include "CompareArgs.h"
+	#include "FreeImage.h"
 	extern "C" {
 #endif
 		typedef struct tagPDiffCompareResult {
-					unsigned int PixelsDifferent;
+					int conclusion;
 					char* ErrorBuffer;
 					unsigned int ErrorBufferSize;
 			} PDiffCompareResult;
 
 			typedef struct tagPDiffCompareParameters {
-				char *PathToImageA;  // Image A
-				char *PathToImageB;  // Image B
+				char *PathToImageA;  // path to Image A
+				char *PathToImageB;  // path to Image B
+
+				unsigned char *ImageA;  // Image A
+				unsigned char *ImageB;  // Image B
+				uint32_t ImageAsize;  // Image A length
+				uint32_t ImageBsize;  // Image B length
+
 				char *PathToOutputImage;  // Diff image
 				bool Verbose;  // Print lots of text or not
 				bool LuminanceOnly;  // Only consider luminance; ignore chroma channels in the comparison.
