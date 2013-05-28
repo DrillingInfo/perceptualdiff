@@ -11,7 +11,6 @@ add_executable (perceptualdiff ${DIFF_SRC})
 add_library (Pdiff STATIC ${DIFF_SRC_LIB})
 
 install(TARGETS perceptualdiff DESTINATION bin)
-#install(TARGETS Pdiff DESTINATION bin)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
