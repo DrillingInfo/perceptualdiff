@@ -1,51 +1,19 @@
+# Changes #
 ------------------
-**PerceptualDiff** is a library that compares two images using a perceptually based image metric.<br>
-Originally comes from 
-<a href="https://github.com/myint/perceptualdiff">https://github.com/myint/perceptualdiff</a>
+Added a wrapper for use **PerceptualDiff** functional as a library.<br>
+Call a method `int PDiffCompare(PDiffCompareParameters* parameters, PDiffCompareResult* result);` <br>
+from `PerceptualDiffWrapper`<br>
+It compares given images and returns int value as a conclusion (see `PerceptualDiffWrapper.h`).<br>
+Also added the ability to pass buffers of images instead of names of files :
+struct PDiffCompareParameters contains appropriate fields:
+
+	unsigned char *ImageA;  // Image A
+	unsigned char *ImageB;  // Image B
+	uint32_t ImageAsize;  // Image A length
+	uint32_t ImageBsize;  // Image B length
+
 
 ------------------
-# C/C++ #
-Because originally **PerceptualDiff** distributes like a standalone application we've made a wraper :
-**PerceptualDiffWrapper.cpp**. It provides  a function 
-
-    extern "C" bool PDiffCompare(PDiffCompareParameters* parameters, PDiffCompareResult* result)
-
-it takes two parameters - pointers to structures (see ArgsManager.cpp)
-Also it can be called from pure C.
-
-For build a library use follow commands:<br>    
-
-
-    g++ -c -fPIC PerceptualDiffWrapper.cpp ArgsManager.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp RGBAImage.cpp
-    gcc -shared -fPIC PerceptualDiffWrapper.o ArgsManager.o CompareArgs.o LPyramid.o Metric.o RGBAImage.o -L. libfreeimage.so.3 -o libPdiff.so
-
-They make a **libPdiff.so** that can be used later, for example:
-
-    gcc -fPIC -o test_main test_main.c libPdiff.so libfreeimage.so.3
-
-This command makes an executable `test_main` that tests the entry point to PerceptualDiffWrapper.
-Don't forget to run<br> 
-
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:.
-before running `./test_main `
-
-**libfreeimage.so.3** is a common library that contains image routines, I put it here for convenient build.
-
-
-# Library for call from JNI#
-For build a library for JNI calls use follow commands:
-
-    g++ -c -fPIC PerceptualDiffWrapper.cpp ArgsManager.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp RGBAImage.cpp
-    gcc -c -fPIC -I$JAVA_HOME/include -I$JAVA_HOME/include/linux JNIperceptualDiff.c
-	gcc -shared -fPIC JNIperceptualDiff.o PerceptualDiffWrapper.o ArgsManager.o CompareArgs.o LPyramid.o Metric.o RGBAImage.o -L. libfreeimage.so.3 -o libPdiff.so
-
-Now we can use  **libPdiff.so** in JNI.
-# Java	 #
-Java class should has a name <br>
-**com.drillinginfo.global.test.utils.ImageDiff**<br>
-and has a method
-
-    public boolean compare(byte[] imag1, byte[] image2)
-it takes two files represented by byte arrays, calls perceptualDiff native function for compare and returns result : are given images visibly different or not.
-
-The package name and class name could be other but in that case you need to rebuild a header file `com_drillinginfo_global_content_utils_ImageDiff.h` and to change the entry point method in **JNIperceptualDiff.c** according to JNI specification.
+# Build Instructions #
+For build use the same CMake script (see original `README.rst`), now it also creates a `Pdiff` library that can be used later.
+Also it may be called from pure C.
