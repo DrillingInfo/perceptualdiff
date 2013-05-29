@@ -6,6 +6,13 @@
 #include "Metric.h"
 #include "ArgsManager.h"
 
+enum conclusion {
+  IMAGES_EQUAL = 0,
+  IMAGES_DIFFERENT = 1,
+	COMPARISON_ERROR = 2
+} CONCLUSION;
+
+
 void copyErrorBuffer(ArgsManager &args, PDiffCompareResult* result) {
 	strncpy(result->ErrorBuffer, args.ErrorStr.c_str(), result->ErrorBufferSize);
 	if (result->ErrorBufferSize) {

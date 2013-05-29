@@ -5,7 +5,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
 set(DIFF_SRC PerceptualDiff.cpp LPyramid.cpp RGBAImage.cpp
 CompareArgs.cpp Metric.cpp)
 
-set(DIFF_SRC_LIB PerceptualDiffWrapper.cpp RGBAImageExt.cpp RGBAImage.cpp ArgsManager.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp)
+set(DIFF_SRC_LIB PerceptualDiffWrapper.cpp RGBAImage.cpp ArgsManager.cpp CompareArgs.cpp LPyramid.cpp Metric.cpp)
 
 add_executable (perceptualdiff ${DIFF_SRC})
 add_library (Pdiff STATIC ${DIFF_SRC_LIB})

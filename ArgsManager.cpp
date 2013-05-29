@@ -25,13 +25,59 @@ ArgsManager::ArgsManager() {
 ArgsManager::~ArgsManager() {
 }
 
+
+static RGBAImageExt *ToRGBAImage(FIBITMAP *image, const char *filename=NULL) {
+	const int w = FreeImage_GetWidth(image);
+	const int h = FreeImage_GetHeight(image);
+
+	RGBAImageExt* result = (RGBAImageExt*)new RGBAImage(w, h, filename);
+	// Copy the image over to our internal format, FreeImage has the scanlines bottom to top though.
+	unsigned int* dest = result->Get_Data();
+	for( int y=0; y < h; y++, dest += w )
+	{
+		const unsigned int* scanline = reinterpret_cast<const unsigned int*>(FreeImage_GetScanLine(image, h - y - 1));
+		memcpy(dest, scanline, sizeof(dest[0]) * w);
+	}
+
+	return result;
+}
+
+
+static RGBAImageExt* ReadFromArray(BYTE *imageArray, DWORD arraySize) {
+
+	FIMEMORY *memBuffer = FreeImage_OpenMemory(imageArray, arraySize);
+	FREE_IMAGE_FORMAT imageType = FreeImage_GetFileTypeFromMemory(memBuffer, arraySize);
+	if(FIF_UNKNOWN == imageType) {
+		printf("Unknown filetype.\n");
+		return 0;
+	}
+
+	FIBITMAP* temporary = FreeImage_LoadFromMemory(imageType, memBuffer, 0);
+	FIBITMAP* freeImage = 0;
+	freeImage = FreeImage_ConvertTo32Bits(temporary);
+	FreeImage_Unload(temporary);
+
+	if(!freeImage) {
+		printf( "Failed to load the image. \n");
+		return 0;
+	}
+
+	RGBAImageExt *result = ToRGBAImage(freeImage);
+
+	FreeImage_Unload(freeImage);
+	FreeImage_CloseMemory(memBuffer);
+
+	return result;
+}
+
+
 bool ArgsManager::parseArgs(PDiffCompareParameters* parameters) {
 	if ( (!parameters->PathToImageA) && //check for empty filenames 
  			 (!parameters->PathToImageB)) {
 
 			if ((!parameters->ImageA) && (!parameters->ImageB) ) { //check then for empty image bodies
 				std::stringstream ss;
-				ss << "Nor file names neither images were not provided for comparison.\n";
+				ss << "Neither file name nor images were provided for comparison.\n";
 				ErrorStr = ss.str();
 				return false;
 			}
@@ -68,14 +114,14 @@ bool ArgsManager::parseArgs(PDiffCompareParameters* parameters) {
 	}
 	else {
 		if ( (parameters->ImageA != NULL) && (parameters->ImageB!= NULL) ) { 
-			ImgA = RGBAImageExt::ReadFromArray(parameters->ImageA, parameters->ImageAsize);
+			ImgA = ReadFromArray(parameters->ImageA, parameters->ImageAsize);
 			if (!ImgA) {
 				ErrorStr = "FAIL: Cannot open ";
 				ErrorStr += parameters->PathToImageB;
 				ErrorStr += "\n";
 				return false;
 			} 
-			ImgB = RGBAImageExt::ReadFromArray(parameters->ImageB, parameters->ImageBsize);
+			ImgB = ReadFromArray(parameters->ImageB, parameters->ImageBsize);
 			if (!ImgB) {
 				ErrorStr = "FAIL: Cannot open ";
 				ErrorStr += parameters->PathToImageB;
@@ -130,3 +176,5 @@ bool ArgsManager::parseArgs(PDiffCompareParameters* parameters) {
 
 	return true;
 }
+
+
