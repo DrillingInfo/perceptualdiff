@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <sstream>
 #include "ArgsManager.h"
-#include "RGBAImageExt.h"
+#include "RGBAImage.h"
 #include "Metric.h"
 #include "FreeImage.h"
 
@@ -26,11 +26,11 @@ ArgsManager::~ArgsManager() {
 }
 
 
-static RGBAImageExt *ToRGBAImage(FIBITMAP *image, const char *filename=NULL) {
+static RGBAImage *ToRGBAImage(FIBITMAP *image, const char *filename=NULL) {
 	const int w = FreeImage_GetWidth(image);
 	const int h = FreeImage_GetHeight(image);
 
-	RGBAImageExt* result = (RGBAImageExt*)new RGBAImage(w, h, filename);
+	RGBAImage* result = new RGBAImage(w, h, filename);
 	// Copy the image over to our internal format, FreeImage has the scanlines bottom to top though.
 	unsigned int* dest = result->Get_Data();
 	for( int y=0; y < h; y++, dest += w )
@@ -43,7 +43,7 @@ static RGBAImageExt *ToRGBAImage(FIBITMAP *image, const char *filename=NULL) {
 }
 
 
-static RGBAImageExt* ReadFromArray(BYTE *imageArray, DWORD arraySize) {
+static RGBAImage* ReadFromArray(BYTE *imageArray, DWORD arraySize) {
 
 	FIMEMORY *memBuffer = FreeImage_OpenMemory(imageArray, arraySize);
 	FREE_IMAGE_FORMAT imageType = FreeImage_GetFileTypeFromMemory(memBuffer, arraySize);
@@ -62,7 +62,7 @@ static RGBAImageExt* ReadFromArray(BYTE *imageArray, DWORD arraySize) {
 		return 0;
 	}
 
-	RGBAImageExt *result = ToRGBAImage(freeImage);
+	RGBAImage *result = ToRGBAImage(freeImage);
 
 	FreeImage_Unload(freeImage);
 	FreeImage_CloseMemory(memBuffer);
