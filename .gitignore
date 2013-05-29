@@ -21,4 +21,4 @@ coverage_output
 *.o
 *.so
 *.
-
+*.a
